@@ -2,7 +2,8 @@
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-import copy
+from itertools import permutations
+import sys
 
 
 def replace_with_num(term, swaps):
@@ -10,37 +11,33 @@ def replace_with_num(term, swaps):
         term = term.replace(letter, str(number))
     return term
 
-def get_min(dictionary):
-    min_val = 1000
-    min_key = ""
-    for key, value in dictionary.items():
-        if min_val > value:
-            min_val = value
-            min_key = key
-    return min_key
+
 
 def find_answers(equation, swaps):
     ans = replace_with_num(equation, swaps)
-    print(ans)
     try:
-        if exec(ans):
+        if eval(ans):
             print(swaps)
-            return swaps
-    except SyntaxError:
+            print(ans)
+            sys.exit()
+    except SyntaxError:  # Leading Zeros Cause a Syntax Error, so we ignore them.
         pass
-    new_swaps = copy.deepcopy(swaps)
-    next = get_min(new_swaps)
-    if new_swaps[next] < 9:
-        new_swaps[next] = new_swaps[next] + 1
-        find_answers(equation, new_swaps)
 
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    answer = "No Valid Answer Found"
     equation = "TWO + TWO == FOUR"
-    variables = {x: 0 for x in equation if x.isalpha()}
-    print(find_answers(equation, variables))
+    variables = [x for x in equation if x.isalpha()]
+    perms = list(permutations([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], len(variables)))
+    count = 0
+    for perm in perms:
+        count += 1
+        swaps = {x:y for x, y in zip(variables, perm)}
+        find_answers(equation, swaps)
+        # Keeps track of progress
+        if count % 1000 == 0:
+            print(f"{count / len(perms):.2%}, {count} / {len(perms)}")
 
 
 
